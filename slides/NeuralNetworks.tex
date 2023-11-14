@@ -77,12 +77,12 @@
 		Operation of a single unit:
 		\begin{equation*}
 			\begin{cases}
-				z(\bm{x}) := \bm{w}^T \bm{x}\\
+				z(\bm{x}) := \bm{w}^T \bm{x} + \bm{b}\\
 				h(\bm{x}) := f(z(\bm{x}))
 			\end{cases}
 		\end{equation*}
 	
-		with $z$  the \textbf{net input} to the neuron and $f$ is the \textbf{activation function}. 
+		with $z$  the \textbf{net input} to the neuron, $ \bm{b}$ is the \textbf{bias} and $f$ is the \textbf{activation function}. 
 		
 		\vspace{5mm}
 		
@@ -138,20 +138,20 @@
 			\end{cases}
 		\end{equation*}
 		with 
-		$\bm{a}^{(0)} = \bm{x}$ (notice: no 1 in the first entry) and $\bm{a}^{(m-1)}$ is the output of the network. $\bm{b}^{(j)}$ is called \textit{bias}.
+		$\bm{a}^{(0)} = \bm{x}$ (notice: no 1 in the first entry) and $\bm{a}^{(m-1)}$ is the output of the network.
 
 	\end{frame}
 
 	\begin{frame}
 		\frametitle{MLP representation - Multiple samples}
-			For each sample $i=1,\dots, N$ and for each layer $j = 1, \dots, m-1$ compute:
+		For each layer $j = 1, \dots, m-1$ compute:
 		\begin{equation*}
 			\begin{cases}
-				\bm{z}^{(i,j)}(\bm{a}^{(i,j-1)}) := \bm{a}^{(i,j-1)}\mathsf{W}^{(j)}  + (\bm{b}^{(j)})^T,\\
-				\bm{a}^{(i,j)} := h^{(j)}(\bm{a}^{(i,j-1)}) = f^{(j)}(\bm{z}^{(i,j)}(\bm{a}^{(i,j-1)})).
+				\mathsf{Z}^{(j)}(\mathsf{A}^{(j-1)}) := \mathsf{A}^{(j-1)}\mathsf{W}^{(j)}  + (\bm{b}^{(j)})^T,\\
+				\mathsf{A}^{(j)} := h^{(j)}(\mathsf{A}^{(j-1)}) = f^{(j)}(\mathsf{Z}^{(j)}(\mathsf{A}^{(j-1)})).
 			\end{cases}
 		\end{equation*}
-		with $\bm{a}^{(i,0)} = \mathsf{X}$ (\textbf{without} the column of ones). Here $(\bm{b}^{(j)})^T$ is a \textit{row vector} containing the biases (use \href{https://numpy.org/doc/stable/user/basics.broadcasting.html}{\textit{broadcasting}} to extend it to $N$ samples).
+		with $\mathsf{A}^{(j)}$ the \textit{matrix} of the outputs of the $j$-th layer (rows correspond to samples) and $\mathsf{A}^{(0)} = \mathsf{X}$ (\textbf{without} the column of ones). Here, $(\bm{b}^{(j)})^T$ is a \textit{row vector} containing the biases (use \href{https://numpy.org/doc/stable/user/basics.broadcasting.html}{\textit{broadcasting}} to extend it to $N$ samples).
 		
 		\begin{figure}
 			\centering
@@ -265,7 +265,7 @@
 	\end{frame}
 
 	\begin{frame}
-		\frametitle{Backpropagation - Example}
+		\frametitle{Back-propagation - Example}
 		\tiny
 		\begin{itemize}
 			\item \textit{Forward pass}: Compute the output $E$ given the inputs $\bm{x}$ following the operations of the graph.
@@ -288,13 +288,36 @@
 		
 	\end{frame}
 
-% NEXT LECTURE
-%	\begin{frame}
-%		\frametitle{NN best practices}
-%		\begin{itemize}
-%			\item Initialize all weights randomly near zero, but \textbf{do not} to initialize them all to zero
-%			\item Number of epochs (i.e. number of iterations of SGD) are not an hyperparameter. Fix it to an appropriate number (e.g. 5000 or less) to avoid too slow convergences.
-%			\item Use regularization to counter overfitting.
-%		\end{itemize}
-%	\end{frame}
+	\begin{frame}
+		\frametitle{Tips and Tricks - NN best practices}
+		\begin{itemize}
+			\item Initialize all weights \textit{randomly} near zero (or use other initialization techniques), but \textbf{do not} initialize uniformly to \textit{break symmetry} and avoid \textit{vanishing/exploding gradients}
+			\item If a learning algorithm is suffering from \textit{high bias}, getting more training data will not (by itself) help much. Instead, if a learning algorithm is suffering from \textit{high variance}, getting more training data is likely to help
+			\item Fewer features fixes \textit{high variance} but not high bias; additional features fixes \textit{high bias} but not high variance
+			\item In general, use regularization to counter overfitting
+			\item Small (big) NNs are more prone to underfitting (overfitting); use cross-validation to select network size
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}
+		\frametitle{Basic Recipe for Machine Learning}
+		\begin{itemize}
+			\item If your model has a high bias:
+			\begin{itemize}
+				\item Try to make your NN bigger (number of hidden units, number of layers)
+				\item Try a different model that is suitable for your data
+				\item Try to increase the number of epochs
+			\end{itemize}
+			\item If your model has a high variance:
+			\begin{itemize}
+				\item More data
+				\item Try regularization
+				\item Try a different model that is suitable for your data
+			\end{itemize}
+			You should try the previous two points until you achieve low bias and low variance.
+		\end{itemize}
+	\end{frame}
 \end{document}
+
+% NEXT LECTURE:
+% learning rate decay, early stopping, dropout, ensemble, Adam/momentum, batch normalization
